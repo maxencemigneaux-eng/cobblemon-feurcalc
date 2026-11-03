@@ -148,8 +148,9 @@ public final class FeurcalcScreen extends Screen {
         topY = 4;
         panelY = topY + 17;
         panelW = (contentW - 6) / 2;
-        panelH = height - panelY - 4;
-        rowH = Mth.clamp((panelH - 45) / 17, 10, 15);
+        int maxPanelH = height - panelY - 4;
+        rowH = Mth.clamp((maxPanelH - 49) / 17, 10, 15);
+        panelH = Math.min(maxPanelH, 49 + 17 * rowH);
 
         for (int s = 0; s < 2; s++) {
             Layout l = layouts[s];
@@ -164,9 +165,9 @@ public final class FeurcalcScreen extends Screen {
             l.sideY = l.statsY + 7 * rowH + 3;
 
             final int side = s;
-            levelBoxes[s] = numberBox(side, l.x + l.w - 22, l.headerY + 1, 22, 12,
+            levelBoxes[s] = numberBox(side, l.x + l.w - 26, l.headerY + 1, 26, 12,
                     () -> mon(side).level, v -> mon(side).level = v, 1, 100, 1, false);
-            hpBoxes[s] = numberBox(side, l.x + l.w - 74, l.hpY, 24, 11,
+            hpBoxes[s] = numberBox(side, l.x + l.w - 80, l.hpY, 26, 11,
                     () -> mon(side).hpPercent, v -> mon(side).hpPercent = v, 0, 100, 5, false);
             for (int i = 0; i < 6; i++) {
                 final int stat = i;
@@ -595,8 +596,8 @@ public final class FeurcalcScreen extends Screen {
         int h = 14;
         // Partie droite : flèches de l'équipe (A) + niveau
         int right = l.x + l.w;
-        textRight(Names.tr("feurcalc.level"), right - 25, y + 3, C_LABEL);
-        int arrowsRight = right - 27 - font.width(Names.tr("feurcalc.level"));
+        textRight(Names.tr("feurcalc.level"), right - 29, y + 3, C_LABEL);
+        int arrowsRight = right - 31 - font.width(Names.tr("feurcalc.level"));
         int nameMax = arrowsRight - l.x - 30;
         if (s == 0 && !CalcState.party().isEmpty()) {
             chip(g, arrowsRight - 24, y + 1, 11, 12, "◀", C_TEXT, false, true, mx, my, () -> state.cycleParty(-1), null,
@@ -653,7 +654,9 @@ public final class FeurcalcScreen extends Screen {
     }
 
     private static String formLabel(@Nullable FormData form) {
-        if (form == null || form == form.getSpecies().getStandardForm()) {
+        if (form == null || form == form.getSpecies().getStandardForm()
+                || form.getName().equalsIgnoreCase(form.getSpecies().getStandardForm().getName())
+                || form.getName().equalsIgnoreCase("normal")) {
             return "";
         }
         String key = "cobblemon.ui.pokedex.info.form." + form.showdownId();
@@ -667,12 +670,12 @@ public final class FeurcalcScreen extends Screen {
         int y = l.hpY;
         text(Names.tr("feurcalc.stat.hp"), l.x, y + 2, C_LABEL);
         int barX = l.x + 18;
-        int barRight = l.x + l.w - 80;
+        int barRight = l.x + l.w - 84;
         int barW = Math.max(10, barRight - barX);
         g.fill(barX, y + 3, barX + barW, y + 8, 0xFF2A2F36);
         int filled = Math.round(barW * Mth.clamp(m.hpPercent, 0, 100) / 100F);
         g.fill(barX, y + 3, barX + filled, y + 8, Ui.hpColor(m.hpPercent));
-        text("%", l.x + l.w - 48, y + 2, C_LABEL);
+        text("%", l.x + l.w - 52, y + 2, C_LABEL);
         JsonObject summary = state.side(s == 0);
         if (summary != null) {
             String hp = CalcState.getInt(summary, "curHP", 0) + "/" + CalcState.getInt(summary, "maxHP", 0);
@@ -863,9 +866,9 @@ public final class FeurcalcScreen extends Screen {
         tipArea(mx, my, l.x + COL_EV, y, COL_EV_W, rowH,
                 List.of(tr("feurcalc.tip.ev_total", evTotal), tr("feurcalc.tip.scroll")));
         textRight(Names.tr("feurcalc.col.stat"), l.x + COL_STAT_RIGHT, ty, C_LABEL);
-        textCenter(Names.tr("feurcalc.col.boost"), l.x + COL_BOOST + 18, ty, C_LABEL);
+        textCenter(Names.tr("feurcalc.col.boost"), l.x + COL_BOOST + 21, ty, C_LABEL);
         int remaining = Math.max(0, 510 - evTotal);
-        if (l.x + COL_BOOST + 40 + font.width("510") < l.x + l.w) {
+        if (l.x + COL_BOOST + 46 + font.width("510") < l.x + l.w) {
             textRight(String.valueOf(remaining), l.x + l.w, ty, evTotal > 510 ? 0xFFFF6A5A : 0xFF6A7480);
             tipArea(mx, my, l.x + l.w - 20, y, 20, rowH, List.of(tr("feurcalc.tip.ev_left", remaining)));
         }
@@ -902,9 +905,9 @@ public final class FeurcalcScreen extends Screen {
                     () -> m.boosts[stat] = Math.max(-6, m.boosts[stat] - 1), null, null);
             int boost = m.boosts[i];
             String bt = boost > 0 ? "+" + boost : String.valueOf(boost);
-            chip(g, bx + 11, ry, 14, h, bt, boost > 0 ? 0xFF7FE08A : boost < 0 ? 0xFFFF8A7A : C_DIM, false, true, mx, my,
+            chip(g, bx + 11, ry, 20, h, bt, boost > 0 ? 0xFF7FE08A : boost < 0 ? 0xFFFF8A7A : C_DIM, false, true, mx, my,
                     null, () -> m.boosts[stat] = 0, null);
-            chip(g, bx + 26, ry, 10, h, "+", C_TEXT, false, true, mx, my,
+            chip(g, bx + 32, ry, 10, h, "+", C_TEXT, false, true, mx, my,
                     () -> m.boosts[stat] = Math.min(6, m.boosts[stat] + 1), null, null);
         }
     }
