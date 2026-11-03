@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "feurcalc",
+  "version": "${version}",
+  "name": "Feurcalc",
+  "description": "Calculateur de dégâts façon Showdex pour Cobblemon : % de dégâts et chances de KO en combat, spreads adverses modifiables (talent, nature, objet, IV, EV, boosts, Téra). 100 % côté client, utilise le calculateur officiel de Pokémon Showdown (@smogon/calc, MIT).",
+  "authors": ["Goat"],
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.goat.feurcalc.FeurcalcClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "cobblemon": ">=1.8.0"
+  }
+}
